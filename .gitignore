@@ -31,3 +31,21 @@ meeting-transcribe.json
 *-人工审核稿.txt
 *-说话人分离.txt
 声纹采样/
+# Local credentials, service snapshots and private meeting media.
+*.pem
+*.key
+*.p12
+*.pfx
+*.db
+*.sqlite
+*.sqlite3
+*.wav
+*.mp3
+*.m4a
+*.aac
+*.flac
+*.ogg
+*.mp4
+*.mkv
+*.mov
+.tools/
