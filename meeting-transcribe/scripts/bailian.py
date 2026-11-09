@@ -11,6 +11,7 @@ import json
 import time
 from urllib.error import HTTPError
 from urllib.request import Request, urlopen
+from hotwords import normalize as normalize_hotwords
 
 # 终态集合，轮询到即停止
 TERMINAL = {"SUCCEEDED", "FAILED", "UNKNOWN", "CANCELED"}
@@ -54,6 +55,9 @@ def submit(cfg, audio_url: str, diarization: bool = True) -> str:
             "language_hints": cfg.language_hints,
         },
     }
+    vocabulary = normalize_hotwords(cfg.hotwords)
+    if vocabulary:
+        body["parameters"]["vocabulary"] = vocabulary
     if diarization:
         # filetrans 的说话人分离参数名是 diarization_enabled（同步接口叫 speaker_diarization_enabled）
         body["parameters"]["diarization_enabled"] = True

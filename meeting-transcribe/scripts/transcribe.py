@@ -12,6 +12,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import bailian  # noqa: E402
+import hotwords  # noqa: E402
 import edits  # noqa: E402
 import media as media_mod  # noqa: E402
 import roster  # noqa: E402
@@ -667,6 +668,7 @@ def install_deps() -> int:
 
 
 def _main(argv=None) -> int:
+    """Route independent local management before preparing media or cloud operations."""
     parser = argparse.ArgumentParser(description="会议转写：原始稿 -> 首次暂定归属 -> 按句校准 -> 明确继续分离及采样 -> 试听确认入库")
     parser.add_argument("inputs", nargs="*", help="一个或多个媒体文件（音频或视频）")
     parser.add_argument("--config", default=None, help="指定配置文件路径")
@@ -743,7 +745,11 @@ def _main(argv=None) -> int:
                         help="环境自检：解释器、ffmpeg、可选依赖、模型、声纹库、云端凭据")
     parser.add_argument("--install-deps", action="store_true",
                         help="安装 requirements.txt 中的声纹可选依赖")
+    hotwords.add_arguments(parser)
     args = parser.parse_args(argv)
+    hotword_result = hotwords.dispatch(args, parser)
+    if hotword_result is not None:
+        return hotword_result
 
     # 依赖安装与自检都在主流程之前短路：它们不需要媒体文件与凭据
     if args.install_deps:

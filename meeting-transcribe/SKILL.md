@@ -1,6 +1,6 @@
 ---
 name: meeting-transcribe
-description: 将会议或访谈音视频转为可审核逐字稿，先暂定归属再按句校准；用户明确继续后采样，逐人试听确认入库，最终生成带来源索引与产物链接的单页 HTML 会议纪要。
+description: 将会议或访谈音视频转为可审核逐字稿，支持热词与权重增删改查并随转写提交；先暂定归属再按句校准，明确继续后采样、逐人试听确认入库，最终生成带来源索引的 HTML 会议纪要。
 ---
 
 # 会议录音转写与人工审核
@@ -12,6 +12,8 @@ description: 将会议或访谈音视频转为可审核逐字稿，先暂定归�
 首次使用读 [配置说明](references/configuration.md)。凭据放本地配置或环境变量，名单、声纹与采样默认放 `~/.config/agent-skills/meeting-transcribe/`，主配置为同级 `meeting-transcribe.json`。旧配置和个人库先用 `python scripts/migrate.py` 检查，再加 `--apply` 备份迁移。用脚本绝对路径调用，工作目录保持会议目录。先运行 `python scripts/transcribe.py --check-env`，自检不联网、不安装。ffmpeg 与 ffprobe 作为常规工具链始终检查。
 
 用户请求转写指定文件授权该录音的上传及百炼调用；不额外上传无关文件。后续审核、继续处理、试听采样及入库都使用本地结果，不重新付费转写。
+
+用户指定热词时，按[热词与权重](references/hotwords.md)管理本地主配置的 `hotwords`。新增用 `--hotword-add "词语"`，默认权重 1，可加 `--hotword-weight`；列出/查询/修改/删除分别用 `--hotword-list`、`--hotword-query`、`--hotword-update`、`--hotword-remove`，改词可加 `--hotword-rename`。管理不与转写参数混用，不需要云凭据；普通转写自动提交非空词表，不自动从名单推断或添加热词。真实词表不写入技能源码，变更不触发旧任务重转写。
 
 ## 必须分阶段执行
 

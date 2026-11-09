@@ -2,6 +2,8 @@
   "_说明": "复制到用户 ~/.config/agent-skills/meeting-transcribe.json，或显式 --config；不要提交真实配置。显式文件字段优先于环境变量。",
   "api_key": "",
   "model": "qwen-audio-3.1-asr-flash-filetrans",
+  "_热词说明": "hotwords 为热词到整数权重的映射；新增默认 1，可用 --hotword-weight 指定 1–5 或 50；真实热词保存在仓库外配置。",
+  "hotwords": {},
   "dashscope_base": "https://dashscope.aliyuncs.com",
   "oss_endpoint": "oss-cn-hangzhou.aliyuncs.com",
   "oss_access_key_id": "",

@@ -14,6 +14,7 @@ from pathlib import Path
 from urllib.request import urlretrieve
 from localio import read_json, save_document, file_lock
 from paths import config_path, data_dir, cache_dir
+from hotwords import normalize as normalize_hotwords
 
 # Installation holds source/templates; mutable configuration uses the user directory.
 SKILL_ROOT = Path(__file__).resolve().parent.parent
@@ -78,6 +79,7 @@ class Config:
     oss_bucket: str = ""
     oss_host: str = ""
     language_hints: list = field(default_factory=lambda: list(DEFAULTS["language_hints"]))
+    hotwords: dict = field(default_factory=dict, repr=False)
     poll_interval: float = DEFAULTS["poll_interval"]
     max_wait: float = DEFAULTS["max_wait"]
     speaker_samples: int = DEFAULTS["speaker_samples"]
@@ -175,6 +177,7 @@ def load_config(explicit: str | None = None, project_dir: Path | None = None) ->
         oss_bucket=data.get("oss_bucket", ""),
         oss_host=data.get("oss_host", ""),
         language_hints=data.get("language_hints") or list(DEFAULTS["language_hints"]),
+        hotwords=normalize_hotwords(data.get("hotwords", {})),
         poll_interval=float(data.get("poll_interval", DEFAULTS["poll_interval"])),
         max_wait=float(data.get("max_wait", DEFAULTS["max_wait"])),
         speaker_samples=int(data.get("speaker_samples", DEFAULTS["speaker_samples"])),

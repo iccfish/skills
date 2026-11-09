@@ -27,6 +27,10 @@
 
 `dashscope_base`、轮询间隔、等待时间、名单/声纹路径等使用 JSON 配置。不要打印整个配置对象。
 
+## 热词配置
+
+`hotwords` 为“热词到整数权重”的对象，默认空词表。通过 `--hotword-add` 新增时省略权重即为 1，可用 `--hotword-weight` 指定；支持列出、查询、改词、改权重和删除。词表保存在同一仓库外主配置，非空时自动随新转写请求的 `parameters.vocabulary` 提交。完整示例、保存优先级和恢复边界见[热词与权重](hotwords.md)。
+
 ## OSS 读取模式
 
 - `public` 保持原行为，需要匿名可访问的对象 URL；不自动更改 Bucket ACL。
