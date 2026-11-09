@@ -1,0 +1,3 @@
+interface:
+  display_name: "NasCtl"
+  short_description: "发现 NasCtl API，检索 NAS 索引并管理下载、同步与转码队列"

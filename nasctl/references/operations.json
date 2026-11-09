@@ -1,0 +1,246 @@
+{
+  "reviewed_at": "2026-10-23",
+  "api_version": "1.0.0",
+  "operations": [
+    {
+      "method": "POST",
+      "path": "/api/downloaders/action",
+      "summary": "控制下载任务",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/add",
+      "summary": "添加下载任务",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/files-priority",
+      "summary": "设置文件优先级",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/files-wanted",
+      "summary": "设置文件下载选择",
+      "effect": "write"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/files",
+      "summary": "种子文件列表",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/free-space",
+      "summary": "查询目录剩余空间",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders",
+      "summary": "下载器实例状态",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/location",
+      "summary": "移动下载任务目录",
+      "effect": "write"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/mounts",
+      "summary": "下载器挂载点",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/remove",
+      "summary": "移除下载任务",
+      "effect": "write"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/downloaders/stations/{id}",
+      "summary": "删除下载站配置",
+      "effect": "write"
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/downloaders/stations/{id}",
+      "summary": "更新下载站配置",
+      "effect": "write"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/stations",
+      "summary": "下载站配置列表",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/stations",
+      "summary": "创建下载站配置",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/sync-mount-spaces",
+      "summary": "回写挂载点空间",
+      "effect": "preview-or-write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/sync-mt-tags",
+      "summary": "同步下载状态到 MT 标签",
+      "effect": "preview-or-write"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/torrent-details",
+      "summary": "下载任务详情",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/downloaders/torrent-file/parse",
+      "summary": "解析上传的种子文件",
+      "effect": "parse"
+    },
+    {
+      "method": "GET",
+      "path": "/api/downloaders/torrents",
+      "summary": "下载任务列表",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/files/disk-search",
+      "summary": "磁盘索引检索",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/files/list",
+      "summary": "目录索引列表",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/files/refs",
+      "summary": "文件引用记录",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/files/search",
+      "summary": "文件条件检索",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/files/servers",
+      "summary": "服务器与挂载点列表",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/media/{id}/raw",
+      "summary": "原始媒体信息",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/media/search",
+      "summary": "媒体信息检索",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mt/by-info-hash",
+      "summary": "按 info_hash 查询 MT 记录",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mt/category-counts",
+      "summary": "MT 分类统计",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mt/detail/{id}",
+      "summary": "MT 种子详情",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/mt/image",
+      "summary": "缓存并反代 MT 图片",
+      "effect": "external-cache"
+    },
+    {
+      "method": "POST",
+      "path": "/api/mt/search",
+      "summary": "MT 种子检索",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/mysql",
+      "summary": "MySQL 连通性检查",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/redis",
+      "summary": "Redis 连通性检查",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/system/status",
+      "summary": "主机运行状态",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/torrents/files",
+      "summary": "种子内容列表",
+      "effect": "read"
+    },
+    {
+      "method": "POST",
+      "path": "/api/torrents/search",
+      "summary": "种子文件检索",
+      "effect": "read"
+    },
+    {
+      "method": "DELETE",
+      "path": "/api/transcode/queue",
+      "summary": "移除转码队列任务",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/transcode/queue/clear",
+      "summary": "清空转码队列",
+      "effect": "write"
+    },
+    {
+      "method": "POST",
+      "path": "/api/transcode/search",
+      "summary": "转码历史检索",
+      "effect": "read"
+    },
+    {
+      "method": "GET",
+      "path": "/api/transcode/tasks",
+      "summary": "转码任务与队列",
+      "effect": "read"
+    }
+  ]
+}

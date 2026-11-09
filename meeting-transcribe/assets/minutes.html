@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>$title · 会议纪要</title>
+<style>$css</style>
+</head>
+<body>
+<nav class="topbar" aria-label="报告导航"><a class="wordmark" href="#overview">MEETING / NOTES</a><div><a href="#agenda">议程</a><a href="#actions">待办</a><a href="#files">文件</a><button type="button" onclick="window.print()">打印 / 保存 PDF</button></div></nav>
+<main>
+<header class="hero" id="overview"><p class="eyebrow">会议纪要 <span class="divider">/</span> 基于最终归属稿</p><h1>$title</h1><p class="lead">把讨论、结论与下一步，放在同一页。</p><div class="metrics"><span><b>$agenda_count</b> 项议程</span><span><b>$task_count</b> 项待办</span><span><b>$speaker_count</b> 位已确认发言人</span></div></header>
+<section class="section" aria-labelledby="info-title"><div class="section-heading"><span>01 / CONTEXT</span><h2 id="info-title">基本信息</h2></div><dl class="facts">$facts</dl><p class="footnote">发言人按最终转写归属列示，不作为完整出席名单。未明确的信息保持空缺。</p></section>
+<section class="section" aria-labelledby="summary-title"><div class="section-heading"><span>02 / TAKEAWAYS</span><h2 id="summary-title">会议摘要</h2></div><div class="summary-panel">$summary</div><div class="two-col"><article><h3>明确结论 / 安排</h3>$decisions</article><article><h3>待澄清 / 风险</h3>$questions</article></div></section>
+<section class="section" id="agenda"><div class="section-heading"><span>03 / DISCUSSION</span><h2>议程与讨论</h2></div><p class="muted">按录音实际讨论整理，时间为录音相对时间。</p><div class="agenda">$agenda</div></section>
+<section class="section" id="actions"><div class="section-heading"><span>04 / NEXT STEPS</span><h2>待办事项</h2></div><div class="table-toolbar"><p class="muted">保留原文中的相对期限；建议与未落实事项标记为待确认。</p><label>筛选 <select id="task-filter"><option value="all">全部</option><option value="待办">待办</option><option value="待确认">待确认</option></select></label></div><div class="table-scroll"><table><thead><tr><th scope="col">#</th><th scope="col">事项 / 交付物</th><th scope="col">负责人</th><th scope="col">期限（原文）</th><th scope="col">状态</th></tr></thead><tbody>$tasks</tbody></table></div><p id="filter-empty" class="muted" hidden>没有符合筛选的事项。</p></section>
+<section class="section" id="files"><div class="section-heading"><span>05 / DELIVERABLES</span><h2>生成物快捷入口</h2></div><p class="muted">链接指向本机文件；同目录文件可随会议目录一起移动。跨目录音频需保留原路径，分享前另行打包。</p><div class="file-grid">$links</div></section>
+<section class="section" id="evidence"><div class="section-heading"><span>06 / SOURCE</span><h2>来源核对</h2></div><p class="muted">点击“句索引”可直接跳到下方原话。拆句保留同一原始索引，分别显示已确认姓名。</p><details id="transcript"><summary>展开最终归属逐字稿</summary><div class="transcript">$transcript</div></details></section>
+<footer><p>$source_note</p><p>内容来源：$source · 版本 $source_hash · 生成于 $generated</p><p>本纪要由智能体根据确认稿整理；再次修改转写或归属后需重新生成。</p></footer>
+</main>
+<script>
+// Source links expand the offline transcript before navigating to the cited sentence.
+function revealSource(){if(location.hash.startsWith('#sentence-')){document.getElementById('transcript').open=true;requestAnimationFrame(function(){var row=document.getElementById(location.hash.slice(1));if(row)row.scrollIntoView({block:'center'});});}}
+window.addEventListener('hashchange',revealSource);revealSource();
+document.getElementById('task-filter').addEventListener('change',function(){var count=0;document.querySelectorAll('tbody tr[data-status]').forEach(function(row){row.hidden=this.value!=='all'&&row.dataset.status!==this.value;if(!row.hidden)count++;},this);document.getElementById('filter-empty').hidden=count>0;});
+// Print every task even if a screen filter is active; restore the user's filter afterwards.
+window.addEventListener('beforeprint',function(){document.querySelectorAll('details').forEach(function(d){d.dataset.wasOpen=d.open?'yes':'no';d.open=true;});document.querySelectorAll('tbody tr[hidden]').forEach(function(r){r.dataset.wasHidden='yes';r.hidden=false;});});
+window.addEventListener('afterprint',function(){document.querySelectorAll('details').forEach(function(d){d.open=d.dataset.wasOpen==='yes';});document.querySelectorAll('tr[data-was-hidden]').forEach(function(r){r.hidden=true;delete r.dataset.wasHidden;});});
+</script>
+</body>
+</html>

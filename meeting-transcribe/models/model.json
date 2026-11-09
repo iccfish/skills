@@ -1,0 +1,25 @@
+{
+  "repository": "Alkd/campplus-zh-cn-common-200k-onnx",
+  "revision": "e95ce6e8d1f357014dc253ca8caa47f579a65226",
+  "filename": "campplus_zh_cn_common_200k.onnx",
+  "size_bytes": 28223528,
+  "sha256": "5c8574f7930ddde1abe72dac31ee5ff7fb7fd30cc8fbf0302881c4cb32f4a4ad",
+  "license": "Apache-2.0",
+  "license_declaration": "Hugging Face author metadata, verified against repository API via hf-mirror on 2026-11-04",
+  "license_file": "LICENSE-APACHE-2.0.txt",
+  "upstream": "modelscope/3D-Speaker",
+  "input": "feats [batch, time, 80]",
+  "output": "embs [batch, 192]",
+  "frontend": "kaldi-fbank-v2",
+  "frontend_parameters": {
+    "sample_rate": 16000,
+    "num_mel_bins": 80,
+    "dither": 0,
+    "window_type": "povey",
+    "remove_dc_offset": true,
+    "low_freq": 20,
+    "high_freq": 0,
+    "mean_normalization": true
+  },
+  "accuracy_status": "No cross-recording or cross-channel accuracy claim; thresholds require calibration with the new frontend."
+}

@@ -1,0 +1,33 @@
+{
+  "_说明": "复制到用户 ~/.config/agent-skills/meeting-transcribe.json，或显式 --config；不要提交真实配置。显式文件字段优先于环境变量。",
+  "api_key": "",
+  "model": "qwen-audio-3.1-asr-flash-filetrans",
+  "dashscope_base": "https://dashscope.aliyuncs.com",
+  "oss_endpoint": "oss-cn-hangzhou.aliyuncs.com",
+  "oss_access_key_id": "",
+  "oss_access_key_secret": "",
+  "oss_bucket": "",
+  "oss_host": "",
+  "language_hints": [
+    "zh",
+    "en"
+  ],
+  "poll_interval": 5,
+  "max_wait": 3600,
+  "speaker_samples": 30,
+  "sample_chars": 200,
+  "ffmpeg_dir": "",
+  "_声纹说明": "null=条件不齐时询问，true=准备可选依赖/模型，false=关闭。新前处理需要 kaldi-native-fbank；旧库需从原音频重新录入新库。",
+  "vp_enabled": null,
+  "vp_model_path": "",
+  "_模型说明": "技能包不含模型权重；留空则查找用户缓存及旧项目缓存，缺失时下载到用户缓存。模型摘要和版本见 models/model.json。",
+  "vp_threshold": 0.74,
+  "vp_segments": 3,
+  "vp_min_seconds": 4.0,
+  "vp_segment_seconds": 20.0,
+  "vp_db": "",
+  "oss_url_mode": "signed",
+  "oss_url_ttl": 86400,
+  "oss_security_token": "",
+  "roster_path": ""
+}

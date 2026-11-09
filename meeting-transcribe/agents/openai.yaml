@@ -1,0 +1,4 @@
+interface:
+  display_name: "Meeting Transcribe"
+  short_description: "按句校准归属，试听确认声纹，最终生成含待办与文件入口的单页 HTML 会议纪要"
+  default_prompt: "使用 $meeting-transcribe 转写这份录音，先暂定归属并按句校准，等我明确继续后采样确认，最终按确认稿生成单页 HTML 会议纪要。"

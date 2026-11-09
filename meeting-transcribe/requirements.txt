@@ -1,0 +1,18 @@
+# 会议转写技能的依赖清单
+#
+# 【重要】本清单只服务于「声纹识别」这一可选能力。
+# 转写主链路（音频转码 -> 上传 OSS -> 百炼 filetrans -> 输出 TXT）只用 Python 标准库
+# 与 ffmpeg，不需要安装任何第三方包，换机即可运行。
+#
+# 安装：
+#   python -m pip install -r requirements.txt
+#   或：python scripts/transcribe.py --install-deps
+#
+# 验证：python scripts/transcribe.py --check-env
+#
+# 注意：依赖必须装到「运行脚本的那个解释器」下。若 `python` 指向 A、而依赖装在 B，
+# 自检会显示 onnxruntime ✗ 未安装。用 `python -c "import sys;print(sys.executable)"` 核对。
+
+onnxruntime>=1.16    # CPU 推理 CAM++ 声纹模型，实测 1.31.1；不用 GPU 版
+numpy>=1.24          # 特征数组、向量聚合与余弦相似度；本轮版本见验证记录
+kaldi-native-fbank>=1.22.5,<2  # 与上游 Kaldi FBank 的窗口、去直流和 mel 默认值一致

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Portainer"
+  short_description: "发现可用工具并管理本机配置的 Portainer 实例和 Docker 环境"
