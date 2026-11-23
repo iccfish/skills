@@ -128,17 +128,22 @@ parent_id = doc.parent_doc if parent_doc == '' else parent_doc   # 3) 空值保�
 
 实测：把自己挂到自己下面会被拒；不传 `parent_doc` 不会把文档提到顶层。
 
-### 4.4 附件上传（新能力，但有双重限制）
+### 4.4 附件上传（新能力，注意三处限制）
 
 ```python
 result = handle_attachment_upload(attachment, token.user, request)   # app_doc/util_upload_file.py
 ```
 
 - 字段名 `attachment_upload`，multipart POST。
+- **返回的 `data.url` 不能直接当访问地址用**：它是相对 `MEDIA_ROOT` 的 name（如 `attachment/2026/11/x.pdf`），
+  不带 `/media`。拼成 `/attachment/...` 是 404，正确地址为 `/media/attachment/...`。
+  对比：`upload_img` 返回的 `url` 反而已带 `/media/` 前缀——两个接口形态不一致，脚本统一走 `media_url()` 归一。
 - **后缀白名单**来自 `SysSetting(types='doc', name='attachment_suffix')`，**未配置时默认只有 `['zip']`**。
-  实测传 `.txt` 返回 `{"status": false, "data": "不支持的格式"}`。
+  实测传 `.txt` 返回 `{"status": false, "data": "不支持的格式"}`；放行 pdf 等后缀需站点管理员配置。
 - 大小上限同样来自 `SysSetting(types='doc', name='attachment_size')`，未配置时 50MB。
 - zip 会做炸弹检测。
+- 上传成功后只能用返回的 `url` 访问，**无法通过 API 反查**（`get_attachments` 不可用，见坑 8），
+  所以脚本必须把地址当场输出并交代清楚，丢掉就得登网页端找。
 
 ## 5. 已验证 / 未验证清单
 
@@ -155,9 +160,9 @@ result = handle_attachment_upload(attachment, token.user, request)   # app_doc/u
 | `create_doc` | ✅ 实测 | 建后 `content` 为 null，属正常 |
 | `modify_doc` | ✅ 实测 | 含「不传 title 清空标题」的坑复现、环检测复现 |
 | `delete_doc` | ✅ 实测 | 软删除，目录立即不显示 |
-| `upload_file` | ⚠️ 部分实测 | 不带文件返回「未选择文件」、传 txt 返回「不支持的格式」，**成功路径未实测**（会留附件垃圾） |
+| `upload_file` | ✅ 实测 | 附件上传成功路径已跑通（需站点放行该后缀）；返回路径要补 `/media`，见 4.4 |
 | `get_attachments` | ❌ 实测不可用 | 恒返回 `{"status": false, "data": "系统异常"}`，见坑 8 |
-| `get_imgs` | ✅ 实测 | 返回图片素材列表 |
+| `get_imgs` | ✅ 实测 | 返回图片素材列表，含 `total_cnt`、`total_page`；**`limit` 被服务端压到 10 条/页，传更大值无效**，素材多的站点要按 `total_page` 翻页（取最新从末页起） |
 | `upload_img` / `upload_img_url` | ⚠️ 未实测 | 会往素材库写文件，脚本已按其字段实现 |
 | `create_project` | ⚠️ 未实测 | 会新建文集，未做真实调用 |
 | `ai_chat_stream` | ⚠️ 未验证 | 需站点开启 AI，未调用 |
@@ -184,6 +189,10 @@ result = handle_attachment_upload(attachment, token.user, request)   # app_doc/u
 10. **`delete_doc` 只能删自己创建的文档**（`doc.create_user == token.user`）。
 11. **文档站内链接**：规范形式是 `/project-<pid>/doc-<did>/`；`/doc/<did>/` 也能打开（短路径）。
     注意**未登录访问私密文集时，404 页同样返回 HTTP 200**，判断可达性要看 `<title>` 而非状态码。
+12. **`create_doc` 没有附件字段**：文章（Doc）、附件（Attachment）、图片素材（Image）是三套独立资源，
+    建文时"顺带挂附件"不存在原子操作。正确顺序是：先 `upload_file` / `upload_img` 拿到 `/media/...` 地址，
+    再把地址写进正文 Markdown（附件写成 `[文件名](url)`，图片写成 `![](url)`），最后建或改文档。
+    正文里建议直接写**绝对地址**，这样导出、迁移或别处引用都不会失效。
 
 ## 7. 官方文档出处
 

@@ -470,8 +470,29 @@ def cmd_delete(args):
     print("已删除（软删除）：did={}  {}".format(args.did, cur["name"]))
 
 
+def media_url(path):
+    """把上传接口返回的站内路径补成可直接访问的绝对地址。
+
+    两个上传接口返回的形态不一致，且都不给能直接用的绝对地址：
+    - upload_img 返回形如 `/media/202611/x.jpg`，已带 MEDIA_URL 前缀；
+    - upload_file 返回形如 `attachment/2026/11/x.pdf`，相对 MEDIA_ROOT，**不带** /media。
+      若按“有斜杠就拼 base”处理会得到 `/attachment/...`，该路径不存在，返回 404；
+      真实地址是 `/media/attachment/...`。
+
+    因此统一在此补齐 MEDIA_URL：MrDoc 1.1.1 的 settings.py 把 MEDIA_URL 写死为 `/media/`，
+    只有自行改过该配置的部署才会不同，属于少数情况，不做探测。
+    """
+    path = str(path or "")
+    if path.startswith("http"):
+        return path
+    p = "/" + path.lstrip("/")
+    if not p.startswith("/media/"):
+        p = "/media" + p
+    return QBASE["base"].rstrip("/") + p
+
+
 def cmd_upload(args):
-    """上传图片到素材库，输出可直接写进 Markdown 的图片地址。"""
+    """上传图片到素材库，输出可直接写进 Markdown 的图片地址（绝对地址）。"""
     with open(args.file, "rb") as f:
         content = f.read()
     fn = os.path.basename(args.file)
@@ -481,7 +502,7 @@ def cmd_upload(args):
     r = _request("upload_img/", files={"image": (fn, content, ctype)})
     emit(r)
     if r.get("success") == 1 or r.get("status"):
-        url = r.get("url") or r.get("data")
+        url = media_url(r.get("url") or r.get("data"))
         print("图片地址：{}".format(url))
         print("Markdown：![]({})".format(url))
     else:
@@ -507,9 +528,7 @@ def cmd_attach(args):
         die("上传失败：{}（若提示「不支持的格式」，是站点未放行该后缀）"
             .format(json.dumps(r, ensure_ascii=False)))
     data = r.get("data") or {}
-    path = str(data.get("url", ""))
-    url = path if path.startswith("http") else "{}{}".format(
-        QBASE["base"].rstrip("/"), path if path.startswith("/") else "/" + path)
+    url = media_url(data.get("url"))
     print("附件：{}".format(data.get("name")))
     print("地址：{}".format(url))
 
