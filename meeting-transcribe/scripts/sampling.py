@@ -12,6 +12,24 @@ from localio import atomic_json, read_json, file_lock
 from paths import data_dir
 from review import fingerprint
 
+FINAL_STATUSES = frozenset(('accepted', 'rejected', 'insufficient', 'skipped'))
+
+
+def matched_names(attribution: dict) -> set[str]:
+    """Skip only identities actually assigned by a threshold hit in this meeting's snapshot."""
+    names = attribution.get('names', {})
+    result = set()
+    for sid, candidates in attribution.get('suggestions', {}).items():
+        if candidates and candidates[0][2] is True and names.get(str(sid)) == candidates[0][0]:
+            result.add(candidates[0][0])
+    return result
+
+
+def resolved(data: dict) -> bool:
+    """Rejected and threshold-skipped groups finish this batch without replacement samples."""
+    groups = data.get('groups', [])
+    return bool(groups) and all(group['status'] in FINAL_STATUSES for group in groups)
+
 
 def root_dir(cfg) -> Path:
     """Keep samples beside the selected voiceprint library, outside skill source."""
@@ -56,21 +74,36 @@ def _checked_file(item: dict, root: Path, *, required=True) -> Path:
 
 
 def export(cfg, sentences: list, names: dict, audio: Path, manifest: Path,
-           ffmpeg: str, revision: str, force: bool = False) -> dict:
-    """Two nonoverlapping clips per named identity; export never writes embeddings."""
+           ffmpeg: str, revision: str, force: bool = False, skip_names=()) -> dict:
+    """Reuse completed decisions; export two clips only for identities needing enrollment."""
+    skip_names = set(skip_names)
     root = root_dir(cfg)
     old = read_json(manifest)
     source_hash = file_hash(audio)
     context = fingerprint([revision, str(audio.resolve()), source_hash, str(root)])
     identity = fingerprint([context, uuid.uuid4().hex]) if force else context
     if old.get('context', old.get('identity')) == context and not force:
+        changed = False
         for group in old['groups']:
             for item in group['files']:
-                _checked_file(item, root, required=group['status'] != 'rejected')
+                _checked_file(item, root, required=group['status'] not in ('rejected', 'skipped'))
+            # Upgrade an existing pending batch without re-extracting other people's clips.
+            # Accepted/rejected decisions remain evidence and are never rewritten.
+            if group['status'] in ('pending', 'insufficient') and group.get('name') in skip_names:
+                group.update(status='skipped', reason='threshold_matched')
+                changed = True
+        if changed:
+            atomic_json(manifest, old)
+        for group in old['groups']:
+            if group['status'] == 'skipped':
+                for item in group['files']:
+                    path = _checked_file(item, root, required=False)
+                    if path.exists():
+                        _checked_file(item, root).unlink()
         return old
     # Remove only obsolete pending/rejected clips. Accepted training audio remains available.
     for group in old.get('groups', []):
-        if group['status'] in ('pending', 'rejected', 'insufficient'):
+        if group['status'] in ('pending', 'rejected', 'insufficient', 'skipped'):
             for item in group['files']:
                 path = _checked_file(item, root, required=False)
                 if path.exists():
@@ -82,6 +115,10 @@ def export(cfg, sentences: list, names: dict, audio: Path, manifest: Path,
         grouped.setdefault(name, []).append(sid)
     groups = []
     for name, ids in grouped.items():
+        if name in skip_names:
+            groups.append({'id': str(len(groups)), 'name': name, 'speaker_ids': sorted(set(ids)),
+                           'status': 'skipped', 'reason': 'threshold_matched', 'files': []})
+            continue
         # Preserve all intervening other speakers to keep pick_spans from crossing boundaries.
         rows = [{**r, 'speaker_id': 0 if r.get('speaker_id') in ids else 1} for r in sentences]
         spans = vp.pick_spans(rows, 0, 2, cfg.vp_min_seconds, cfg.vp_segment_seconds) if all(isinstance(sid, int) for sid in ids) else []
@@ -161,7 +198,11 @@ def describe(data: dict) -> None:
     """Expose stable confirmation IDs and audio paths for an agent's listening questions."""
     for group in data.get('groups', []):
         print(f"[sample] {group['id']} {group['name']} 状态={group['status']}")
-        for item in group['files']:
+        if group['status'] == 'skipped':
+            print('  本次首次声纹匹配已达阈值并直接归属，跳过采样与入库')
+        if group['status'] == 'rejected':
+            print('  已拒绝并跳过入库，无需重新提取；继续处理其他待确认样本')
+        for item in group['files'] if group['status'] in ('pending', 'accepted') else []:
             print(f"  {item['path']}（原录音 {item['start']:.3f}s，{item['duration']:.3f}s）")
-    if data.get('groups') and all(g['status'] in ('accepted', 'rejected', 'insufficient') for g in data['groups']):
+    if resolved(data):
         print('[report] 采样决定已处理，请按 references/report.md 阅读最终确认稿并生成单页 HTML 会议纪要。')

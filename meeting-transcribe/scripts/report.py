@@ -13,6 +13,7 @@ from urllib.parse import quote
 
 import edits
 import review
+import sampling
 from localio import read_json, atomic_text, atomic_json, file_lock
 
 ASSETS = Path(__file__).resolve().parent.parent / 'assets'
@@ -61,7 +62,7 @@ def context(raw: Path) -> dict:
     samples = read_json(paths['samples'])
     if samples.get('revision') != workflow.get('sample_revision') or samples.get('revision') != review.fingerprint([revision, names]):
         raise ValueError('采样与最终归属版本不一致')
-    if not samples.get('groups') or any(g['status'] not in ('accepted', 'rejected', 'insufficient') for g in samples['groups']):
+    if not sampling.resolved(samples):
         raise ValueError('仍有待确认采样，请逐人完成准确或不对/不确定的选择')
     selected = paths['reviewed'] if paths['reviewed'].exists() else paths['separated']
     return {'raw': raw, 'paths': paths, 'meta_path': meta_path, 'meta': meta, 'rows': rows,

@@ -445,9 +445,12 @@ def _process_file(cfg, src: Path, ffmpeg: str, ffprobe: str, args,
         audio = resolve_audio_for_vp(base, audio_path)
         if audio is None:
             raise ValueError('找不到原音频，分离稿已保存，未采样或入库')
-        data = sampling.export(cfg, sentences, names, audio, stages['samples'], ffmpeg, workflow['sample_revision'], force=args.resample)
+        data = sampling.export(cfg, sentences, names, audio, stages['samples'], ffmpeg,
+                               workflow['sample_revision'], force=args.resample,
+                               skip_names=sampling.matched_names(attribution))
         sampling.describe(data)
-        print('[review] 请逐人试听两段样本，询问「准确 / 不对或不确定」；只有准确才用 --samples-accept 入库')
+        if not sampling.resolved(data):
+            print('[review] 仅对 pending 组逐人试听两段样本，询问「准确 / 不对或不确定」；准确才用 --samples-accept 入库，拒绝后跳过该组，不重新提取')
     else:
         document = build_meta(sentences, names, info)
         document['workflow'] = workflow
